@@ -12,13 +12,13 @@ fn main() {
 }
 
 fn handle_connection(mut stream: TcpStream) {
-    let mut buffer = [0; 1024];
+    let mut buffer: [u8; 4024] = [0; 4024];
     stream.read(&mut buffer).unwrap();
     stream.write(get_response(buffer).as_bytes()).unwrap();
     stream.flush().unwrap();
 }
 
-fn get_response(buffer: [u8; 1024]) -> String {
+fn get_response(buffer: [u8; 4024]) -> String {
     let (filename, status_line) = get_content(buffer);
     let content = fs::read_to_string(filename).unwrap_or_else(|_| {
         fs::read_to_string("pages/500.html").unwrap_or_else(|_| "Internal Server Error".to_string())
@@ -31,7 +31,7 @@ fn get_response(buffer: [u8; 1024]) -> String {
     )
 }
 
-fn get_content(buffer: [u8; 1024]) -> (String, String) {
+fn get_content(buffer: [u8; 4024]) -> (String, String) {
     let request = String::from_utf8_lossy(&buffer);
     match request.lines().next() {
         Some(line) => find_route(line),
